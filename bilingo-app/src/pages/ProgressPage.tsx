@@ -105,7 +105,7 @@ export default function ProgressPage() {
                   className="h-4 mb-2"
                 />
                 <p className="text-sm text-gray-500">
-                  You've completed {progressData.overallProgress}% of the course
+                  You've completed {progressData.overallProgress}% of the courses.
                 </p>
               </>
             )}

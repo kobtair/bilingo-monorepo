@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { ArrowLeft, Play, Loader } from "lucide-react"
+import { ArrowLeft, Play, Loader, Pause, StopCircle as Stop } from "lucide-react"
 import { Button } from "../components/ui/button"
 // import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { updateProgress, completeChapter } from "../api/progress"
@@ -77,6 +77,21 @@ export default function LessonDetailPage() {
     }
   }
 
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+  
+  const pauseAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
   // Recording functionality using MediaRecorder
   const startRecording = async () => {
     try {
@@ -108,7 +123,7 @@ export default function LessonDetailPage() {
 
           formData.append("user_id", user?._id??"")
           setIsProcessing(true)
-          const response = await fetch(`${API_BASE}/analyze/dummy`, {
+          const response = await fetch(`${API_BASE}/analyze`, {
             method: "POST",
             body: formData,
           })
@@ -175,6 +190,12 @@ export default function LessonDetailPage() {
               <Button size="icon" onClick={playAudio} disabled={isPlaying}>
                 <Play className="h-4 w-4" />
               </Button>
+              <Button size="icon" onClick={pauseAudio} disabled={!isPlaying}>
+                <Pause className="h-4 w-4" />
+              </Button>
+              <Button size="icon" onClick={stopAudio} disabled={!isPlaying}>
+                <Stop className="h-4 w-4" />
+              </Button>
               <Button
                 size="icon"
                 onClick={toggleRecording}
@@ -224,6 +245,21 @@ export default function LessonDetailPage() {
             <h2 className="text-xl font-bold mb-2">Analysis Result</h2>
             <p>Similarity Ratio: {modalData.comparison.similarity_ratio}</p>
             <p>Points Gained: {modalData.comparison.points}</p>
+            {/* Star rating based on similarity ratio */}
+            <div className="flex justify-center mt-2">
+              {Array.from({ length: 5 }, (_, index) => (
+                <span
+                  key={index}
+                  className={`text-2xl ${
+                    index < Math.round(modalData.comparison.similarity_ratio * 5)
+                      ? "text-yellow-500"
+                      : "text-gray-300"
+                  }`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
             <div className="mt-4 text-left">
               <h3 className="font-semibold">Base Audio</h3>
               <p>Pinyin: {modalData.base_audio.pinyin}</p>
